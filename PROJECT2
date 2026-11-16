@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Level Indicator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #eef6fb;
+      color: #183247;
+      display: grid;
+      place-items: center;
+    }
+
+    .card {
+      width: min(92%, 420px);
+      padding: 28px;
+      text-align: center;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 28px #173b541c;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.7rem;
+    }
+
+    .tank {
+      position: relative;
+      width: 170px;
+      height: 260px;
+      margin: 24px auto 16px;
+      overflow: hidden;
+      border: 6px solid #344f60;
+      border-top: 0;
+      border-radius: 0 0 20px 20px;
+      background: #f5fbff;
+    }
+
+    .water {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 0%;
+      background: linear-gradient(#56c7f2, #168bd0);
+      transition: height 400ms ease;
+    }
+
+    .level-label {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      width: 100%;
+      transform: translateY(-50%);
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #183247;
+      text-shadow: 0 1px 3px white;
+    }
+
+    .indicators {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin: 20px 0;
+    }
+
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #526a79;
+      font-size: 0.9rem;
+    }
+
+    .lamp {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #cbd5dc;
+    }
+
+    .lamp.active.low {
+      background: #f2bd32;
+      box-shadow: 0 0 10px #f2bd32;
+    }
+
+    .lamp.active.medium {
+      background: #2698dd;
+      box-shadow: 0 0 10px #2698dd;
+    }
+
+    .lamp.active.high {
+      background: #20a765;
+      box-shadow: 0 0 10px #20a765;
+    }
+
+    #status {
+      min-height: 24px;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 9px;
+      background: #147fb5;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0e628e;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #f2bd32;
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>Water Level Indicator</h1>
+    <p>Use the buttons to simulate the tank level.</p>
+
+    <div
+      class="tank"
+      role="img"
+      aria-label="Water tank level"
+    >
+      <div id="water" class="water"></div>
+      <div id="levelLabel" class="level-label">0%</div>
+    </div>
+
+    <div class="indicators" aria-label="Level indicators">
+      <div class="indicator">
+        <span id="lowLamp" class="lamp"></span>Low
+      </div>
+      <div class="indicator">
+        <span id="mediumLamp" class="lamp"></span>Medium
+      </div>
+      <div class="indicator">
+        <span id="highLamp" class="lamp"></span>High
+      </div>
+    </div>
+
+    <p id="status" aria-live="polite">Tank is empty</p>
+
+    <div class="buttons">
+      <button id="decreaseButton" type="button">− Decrease</button>
+      <button id="increaseButton" type="button">+ Increase</button>
+    </div>
+  </main>
+
+  <script>
+    let level = 0;
+
+    const water = document.getElementById("water");
+    const levelLabel = document.getElementById("levelLabel");
+    const status = document.getElementById("status");
+
+    const lamps = {
+      low: document.getElementById("lowLamp"),
+      medium: document.getElementById("mediumLamp"),
+      high: document.getElementById("highLamp")
+    };
+
+    function updateDisplay() {
+      water.style.height = `${level}%`;
+      levelLabel.textContent = `${level}%`;
+
+      Object.values(lamps).forEach((lamp) => {
+        lamp.classList.remove("active", "low", "medium", "high");
+      });
+
+      if (level === 0) {
+        status.textContent = "Tank is empty";
+      } else if (level < 40) {
+        status.textContent = "Low water level";
+        lamps.low.classList.add("active", "low");
+      } else if (level < 80) {
+        status.textContent = "Medium water level";
+        lamps.medium.classList.add("active", "medium");
+      } else {
+        status.textContent =
+          level === 100 ? "Tank is full" : "High water level";
+        lamps.high.classList.add("active", "high");
+      }
+    }
+
+    document.getElementById("increaseButton").addEventListener("click", () => {
+      level = Math.min(100, level + 10);
+      updateDisplay();
+    });
+
+    document.getElementById("decreaseButton").addEventListener("click", () => {
+      level = Math.max(0, level - 10);
+      updateDisplay();
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
